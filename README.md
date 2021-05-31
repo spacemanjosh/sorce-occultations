@@ -5,3 +5,4 @@ Solar occultations provide a glimpse into the vertical structure of the atmosphe
 
 This project will analyze data from the Lyman-alpha channel of the SORCE XPS instrument and to plot occultation profiles of the Earth’s atmosphere in order to examine and understand the scale heights of atmospheric species.  We will also compare these occultations to similar measurements from the SORCE SOSLTICE instrument which has a much higher spectral resolution.  This project has the added potential to provide an understanding of the atmospheric attenuation of the Solar Spectral Irradiance (SSI) as a function of solar cycle variability. 
 
+This project will be developed over the 2021 summer term.
