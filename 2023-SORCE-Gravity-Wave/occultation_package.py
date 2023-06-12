@@ -1,4 +1,4 @@
-#A package with 4 funcitons, get_cd, smooth_cd, irradiance, and updated_numberdensity which return plots of the column density as a function of tangent heigh both smoothed and not, irradiance as a function of time and number density as a function of tangent height.
+#A package with 5 funcitons, get_cd, smooth_cd, irradiance, irr_height, and updated_numberdensity which return plots of the column density as a function of tangent heigh both smoothed and not, irradiance as a function of time, irradiance as a function of height (created by Pepper not Amelia) and number density as a function of tangent height.
 
 #Commented out print statements are there for testing purposes, the same is true for the commented out get_cd function call.
 
@@ -81,14 +81,16 @@ def get_cd(file, plot = False):
     #column_density_list.append(column_density)
     cd_i = np.where(tan_ht_1 < 210)
     column_density = column_density[cd_i]
+    column_density[column_density <= 0] = 0.1
     tan_ht_1 = tan_ht_1[cd_i]
     if plot: 
         plt.figure()
-        plt.plot(column_density, tan_ht_1, label="Column Density")
+        fig = plt.plot(column_density, tan_ht_1, label="Column Density")
         plt.ylim(0, 250)
         plt.xscale('log')
         plt.xlabel('Column Density (cm-2)')
         plt.ylabel('Tangent Height (km)')
+        plt.legend()
         plt.title('Column Density Vs. Tangent Height')
     #print('test')
     #plt.savefig("C:\\Users\\ameli\\OneDrive\\Desktop" + os.path.basename(file) + ".png")
@@ -172,6 +174,26 @@ def irradiance(file, plot = False):
     return irradiance
     #plt.savefig("C:\\Users\\ameli\\OneDrive\\Desktop" + os.path.basename(file) + ".png")
     
+def irr_height(file, plot = False):
+    ds = nc.Dataset(file)
+    irradiance = ds.variables['irradiance'][5:]
+    tan_ht = ds.variables['tanht'][5:]
+    wavelength = ds.variables['wavelength'][5:]
+    mjd = ds.variables['julian_date'][5:]
+    lat = ds.variables['lat'][5:]
+    lon = ds.variables['lon'][5:]
+    dt = []
+    for i in mjd:
+        date_time = julian.from_jd(i, fmt='jd')
+        dt.append(date_time)
+    if plot == True:
+        plt.plot(tan_ht, irradiance)
+        plt.xticks(rotation = 45)
+        plt.xlabel("Tangent Height (km)")
+        plt.ylabel("Irradiance (photons/s/m2)")
+        plt.title("Irradiance vs Tangent Height")
+    return irradiance
+    #plt.savefig("C:\\Users\\ameli\\OneDrive\\Desktop" + os.path.basename(file) + ".png")
 
 def updated_numberdensity(file):
     # first use the fit altitudes to get a number density, then cut them off--> resample with original array
