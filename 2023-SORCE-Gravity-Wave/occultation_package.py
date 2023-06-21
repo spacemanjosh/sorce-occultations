@@ -67,8 +67,8 @@ def get_cd(file, plot = False):
     ave_irradiance = np.mean(places_to_ave_irr)
     ratio = irradiance_1/ave_irradiance
     ratio[ratio <= 0] = 0.1
-    #smoothed_ratio = convolve(ratio, Box1DKernel(5))
-    #smoothed_ratio[smoothed_ratio <= 0] = 0.01
+    smoothed_ratio = convolve(ratio, Box1DKernel(5))
+    smoothed_ratio[smoothed_ratio <= 0] = 0.01
     if plot:
         plt.figure()
         plt.plot(ratio, tan_ht_1)
@@ -78,10 +78,13 @@ def get_cd(file, plot = False):
         plt.title('Extinction Ratio')
     #column_density_list = []
     column_density = -np.log(ratio)/new_sigma
+    smoothed_density = -np.log(smoothed_ratio)/new_sigma
     #column_density_list.append(column_density)
     cd_i = np.where(tan_ht_1 < 210)
     column_density = column_density[cd_i]
     column_density[column_density <= 0] = 0.1
+    smoothed_density = smoothed_density[cd_i]
+    smoothed_density[smoothed_density <= 0] = 0.1
     tan_ht_1 = tan_ht_1[cd_i]
     if plot: 
         plt.figure()
@@ -94,7 +97,7 @@ def get_cd(file, plot = False):
         plt.title('Column Density Vs. Tangent Height')
     #print('test')
     #plt.savefig("C:\\Users\\ameli\\OneDrive\\Desktop" + os.path.basename(file) + ".png")
-    return column_density, tan_ht_1, max(dt), new_sigma, ratio #column_density_list
+    return column_density, tan_ht_1, max(dt), new_sigma, ratio, smoothed_density #column_density_list
 
 def smooth_cd(file):
     r_h = np.arange(6490, 6572, 1)
