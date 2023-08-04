@@ -18,7 +18,7 @@ from os.path import dirname, join as pjoin
 import csv
 from pathlib import Path
 
-occultation_data = Path.cwd() / 'StellarOccultationsWithUncertaintiesAndStarNamesSplit'
+occultation_data = Path.cwd() / 'stellar-occultations-with-uncertainties'
 cross_section = Path.cwd() / "o2_cross_section.ncdf"
 #print(occultation_data)
 #print(cross_section)
@@ -44,6 +44,7 @@ new_wave = np.array(wave.tolist())
 
 # get column density function
 def get_cd(file, plot = False):
+<<<<<<< Updated upstream
     with nc.Dataset(file, 'r') as ds:
         irradiance = ds.variables['irradiance'][:]
         tan_ht = ds.variables['tanht'][:]
@@ -54,11 +55,25 @@ def get_cd(file, plot = False):
         irr_uncertainty = ds.variables['irradiance_repeatability'][:]
         star_name = ds.variables['star_name'][:]
         
+=======
+    with nc.Dataset(file) as ds:
+        
+        irradiance = ds.variables['irradiance'][:]
+        tan_ht = ds.variables['tanht'][:]
+        wavelength = ds.variables['wavelength'][:]
+        mjd = ds.variables['julian_date'][:]
+        lat = ds.variables['lat'][:]
+        lon = ds.variables['lon'][:]
+        irr_uncertainty = ds.variables['irradiance_repeatability'][:]
+        #star_name = ds.variables['star_name'][:]
+
+>>>>>>> Stashed changes
         wavelength_i = np.where(wavelength > 115)
         wavelength_1 = wavelength[wavelength_i]
         irradiance_1 = irradiance[wavelength_i]
         irr_uncertainty_1 = irr_uncertainty[wavelength_i]
         tan_ht_1 = tan_ht[wavelength_i]
+<<<<<<< Updated upstream
         
         dt = []
         smoothed_irr_uncertainty= []
@@ -71,6 +86,20 @@ def get_cd(file, plot = False):
 
         f =  interpolate.interp1d(new_wave, sigma)
         
+=======
+
+        dt = []
+        smoothed_irr_uncertainty= []
+
+        for i in mjd:
+            date_time = julian.from_jd(i, fmt='jd')
+            dt.append(date_time)
+
+        wavelength_1_ave = np.mean(wavelength_1)
+
+        f =  interpolate.interp1d(new_wave, sigma)
+
+>>>>>>> Stashed changes
         new_sigma = f(wavelength_1_ave)
 
         tanht_top = np.where((tan_ht > 240) & (tan_ht < 260))
@@ -78,6 +107,7 @@ def get_cd(file, plot = False):
         ave_irradiance = np.mean(places_to_ave_irr)
         ratio = irradiance_1/ave_irradiance
         ratio[np.isnan(ratio)] = 0.0
+<<<<<<< Updated upstream
         w = np.where(np.isnan(ratio))
         print(w)
         ratio[ratio <= 0] = 0.1
@@ -87,6 +117,15 @@ def get_cd(file, plot = False):
         def standard_deviation_of_mean(data_set, N):
             return np.mean(data_set) / np.sqrt(N)
         
+=======
+        ratio[ratio <= 0] = 0.1
+        smoothed_ratio = convolve(ratio, Box1DKernel(3))
+        smoothed_ratio[smoothed_ratio <= 0] = 0.01
+
+        def standard_deviation_of_mean(data_set, N):
+            return np.mean(data_set) / np.sqrt(N)
+
+>>>>>>> Stashed changes
         for i in range (len(irr_uncertainty_1)):
             if i == 0:
                 uncertainty_window = [0, irr_uncertainty_1[i], irr_uncertainty_1[i+1]]
@@ -94,9 +133,15 @@ def get_cd(file, plot = False):
                 uncertainty_window = [irr_uncertainty_1[i-1], irr_uncertainty_1[i], 0]
             else:
                 uncertainty_window = irr_uncertainty_1[i-1: i+2]
+<<<<<<< Updated upstream
             
             smoothed_irr_uncertainty.append(standard_deviation_of_mean(uncertainty_window, 3))
                 
+=======
+
+            smoothed_irr_uncertainty.append(standard_deviation_of_mean(uncertainty_window, 3))
+
+>>>>>>> Stashed changes
         if plot:
             plt.figure()
             plt.plot(ratio, tan_ht_1)
@@ -104,7 +149,11 @@ def get_cd(file, plot = False):
             plt.xlabel('Extinction Ratio')
             plt.ylabel('Tangent Height (km)')
             plt.title('Extinction Ratio')
+<<<<<<< Updated upstream
         
+=======
+
+>>>>>>> Stashed changes
         #column_density_list = []
         column_density = -np.log(ratio)/new_sigma
         smoothed_density = -np.log(smoothed_ratio)/new_sigma
@@ -118,9 +167,15 @@ def get_cd(file, plot = False):
         smoothed_density[smoothed_density <= 0] = 0.1
         tan_ht_1 = tan_ht_1#[cd_i]
         tan_ht_1[np.isnan(tan_ht_1)] = 0.0
+<<<<<<< Updated upstream
         
         cd_uncertainty = (smoothed_irr_uncertainty)/(irradiance_1 * new_sigma)
         
+=======
+
+        cd_uncertainty = (smoothed_irr_uncertainty)/(irradiance_1 * new_sigma)
+
+>>>>>>> Stashed changes
         if plot: 
             plt.figure()
             fig = plt.plot(column_density, tan_ht_1, label="Column Density")
@@ -132,7 +187,11 @@ def get_cd(file, plot = False):
             plt.title('Column Density Vs. Tangent Height')
         #print('test')
         #plt.savefig("C:\\Users\\ameli\\OneDrive\\Desktop" + os.path.basename(file) + ".png")
+<<<<<<< Updated upstream
     return column_density, tan_ht_1, max(dt), new_sigma, ratio, smoothed_density, cd_uncertainty, max(lat)#column_density_list
+=======
+    return column_density, tan_ht_1, max(dt), new_sigma, ratio, smoothed_density, cd_uncertainty, max(lat), max(lon)#star_name#column_density_list
+>>>>>>> Stashed changes
 
 def smooth_cd(file):
     r_h = np.arange(6490, 6572, 1)
@@ -228,6 +287,7 @@ def irr_height(file, plot = False):
         plt.plot(tan_ht, irradiance)
         plt.xticks(rotation = 45)
         plt.xlabel("Tangent Height (km)")
+        plt.xlim(0, 300)
         plt.ylabel("Irradiance (photons/s/m2)")
         plt.title("Irradiance vs Tangent Height")
     return irradiance
